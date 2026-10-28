@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getContent } from '../lib/server';
+const { content } = await getContent();
+Astro.response.status = 404;
+---
+
+<Layout
+  content={content}
+  title="Strani ni mogoče najti | Brezmadeža"
+  noindex={true}
+>
+  <main id="vsebina" class="not-found">
+    <h1>404</h1>
+    <h2>{content.ui.notFoundTitle}</h2>
+    <p>{content.ui.notFoundText}</p>
+    <a href="/" class="button">
+      {content.ui.backHome} ↗
+    </a>
+  </main>
+</Layout>

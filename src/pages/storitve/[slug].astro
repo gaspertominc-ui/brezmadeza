@@ -1,0 +1,93 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import { getContent } from '../../lib/server';
+const { content: c } = await getContent();
+const service = c.services.items.find(
+  (item) => item.slug === Astro.params.slug,
+);
+if (!service) return Astro.rewrite('/404');
+const url = `https://brezmadeza.si/storitve/${service.slug}`;
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Service',
+      name: `Globinsko čiščenje – ${service.title}`,
+      description: service.detail,
+      provider: {
+        '@type': 'Organization',
+        name: c.brand.name,
+        url: 'https://brezmadeza.si',
+      },
+      url,
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Domov',
+          item: 'https://brezmadeza.si',
+        },
+        { '@type': 'ListItem', position: 2, name: service.title, item: url },
+      ],
+    },
+  ],
+};
+---
+
+<Layout
+  content={c}
+  title={`Globinsko čiščenje: ${service.title} | Brezmadeža`}
+  description={service.description + ' ' + service.detail.slice(0, 110)}
+  schema={schema}
+>
+  <main id="vsebina" class="service-page">
+    <div class="container page-intro">
+      <nav class="breadcrumbs" aria-label="Drobtinice">
+        <a href="/">{c.ui.home}</a>
+        <span>/</span>
+        <a href="/#storitve">{c.nav.services}</a>
+        <span>/</span>
+        <span>{service.title}</span>
+      </nav>
+      <div class="service-page-grid">
+        <div>
+          <p class="eyebrow">
+            {c.ui.cleaningLabel} · {service.label}
+          </p>
+          <h1>{service.title}</h1>
+          <p class="section-description">{service.description}</p>
+          <a class="button" href={`/#kontakt`}>
+            {c.nav.cta}
+            <Icon name="arrow" />
+          </a>
+        </div>
+        <img
+          src={service.image}
+          alt={service.imageAlt}
+          width="900"
+          height="900"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="service-page-detail">
+        <h2>{c.ui.serviceDetailTitle}</h2>
+        <p>{service.detail}</p>
+      </div>
+    </div>
+    <section class="section about-section">
+      <div class="container">
+        <p class="eyebrow">{c.pricing.eyebrow}</p>
+        <h2>{c.pricing.title}</h2>
+        <p class="section-description">{c.pricing.description}</p>
+        <a class="button" style="margin-top:25px" href="/#kontakt">
+          {c.pricing.cta}
+          <Icon name="arrow" />
+        </a>
+      </div>
+    </section>
+  </main>
+</Layout>

@@ -1,0 +1,212 @@
+---
+import '../styles/global.css';
+import '@fontsource-variable/manrope';
+import '@fontsource-variable/dm-sans';
+import Icon from '../components/Icon.astro';
+import type { SiteContent } from '../lib/content';
+interface Props {
+  content: SiteContent;
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  schema?: Record<string, unknown>;
+}
+const {
+  content: c,
+  title = c.seo.title,
+  description = c.seo.description,
+  noindex = false,
+  schema,
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="sl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#24483e" />
+    <meta
+      name="robots"
+      content={noindex ? 'noindex, nofollow' : 'index, follow'}
+    />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="sl_SI" />
+    <meta property="og:site_name" content={c.brand.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta
+      property="og:image"
+      content={new URL(c.seo.socialImage, Astro.site)}
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    {schema && (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(schema).replace(/</g, '\\u003c')}
+      />
+    )}
+  </head>
+  <body>
+    <a href="#vsebina" class="skip-link">
+      Preskoči na vsebino
+    </a>
+    <header class="site-header">
+      <div class="container nav-inner">
+        <a
+          href="/"
+          class="brand"
+          aria-label={`${c.brand.name} – začetna stran`}
+        >
+          <span class="brand-symbol">
+            <Icon name="spark" size={26} />
+          </span>
+          {c.brand.name}
+        </a>
+        <nav class="desktop-nav" aria-label="Glavna navigacija">
+          <a href="/#storitve">{c.nav.services}</a>
+          <a href="/#postopek">{c.nav.process}</a>
+          <a href="/#cenik">{c.nav.pricing}</a>
+          <a href="/#vprasanja">{c.nav.faq}</a>
+        </nav>
+        <a href="/#kontakt" class="button button-small header-cta">
+          {c.nav.cta}
+          <Icon name="arrow" size={17} />
+        </a>
+        <button
+          class="menu-button"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+          aria-label="Odpri navigacijo"
+        >
+          <Icon name="menu" size={24} />
+        </button>
+      </div>
+      <nav
+        id="mobile-nav"
+        class="mobile-nav"
+        aria-label="Mobilna navigacija"
+        hidden
+      >
+        <a href="/#storitve">{c.nav.services}</a>
+        <a href="/#postopek">{c.nav.process}</a>
+        <a href="/#cenik">{c.nav.pricing}</a>
+        <a href="/#vprasanja">{c.nav.faq}</a>
+        <a href="/#kontakt">{c.nav.cta}</a>
+      </nav>
+    </header>
+    <slot />
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <a href="/" class="brand">
+            <span class="brand-symbol">
+              <Icon name="spark" size={26} />
+            </span>
+            {c.brand.name}
+          </a>
+          <p class="footer-description">{c.footer.description}</p>
+          <span class="footer-tagline">
+            {c.brand.tagline}
+            <Icon name="spark" size={16} />
+          </span>
+        </div>
+        <div>
+          <h3>{c.footer.navigation}</h3>
+          <a href="/#storitve">{c.nav.services}</a>
+          <a href="/#postopek">{c.nav.process}</a>
+          <a href="/#cenik">{c.nav.pricing}</a>
+          <a href="/#vprasanja">{c.nav.faq}</a>
+        </div>
+        <div>
+          <h3>{c.footer.contact}</h3>
+          {c.brand.email && (
+            <a href={`mailto:${c.brand.email}`}>{c.brand.email}</a>
+          )}
+          {c.brand.phone && (
+            <a href={`tel:${c.brand.phone.replace(/\s/g, '')}`}>
+              {c.brand.phone}
+            </a>
+          )}
+          <p>{c.brand.area}</p>
+          <a href="/#kontakt" class="footer-inquiry">
+            {c.nav.cta}
+            <Icon name="arrow" size={16} />
+          </a>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <span>
+          © {new Date().getFullYear()} {c.brand.name} {c.footer.copyright}
+        </span>
+        <div>
+          <a href="/zasebnost">{c.footer.privacy}</a>
+          <a href="/pogoji">{c.footer.terms}</a>
+          <a href="#" class="back-top">
+            {c.footer.backTop} ↑
+          </a>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const button = document.querySelector<HTMLButtonElement>('.menu-button');
+      const nav = document.querySelector<HTMLElement>('#mobile-nav');
+      function closeMenu() {
+        if (button && nav) {
+          button.setAttribute('aria-expanded', 'false');
+          button.setAttribute('aria-label', 'Odpri navigacijo');
+          nav.hidden = true;
+        }
+      }
+      button?.addEventListener('click', () => {
+        if (!nav) return;
+        const open = button.getAttribute('aria-expanded') === 'true';
+        button.setAttribute('aria-expanded', String(!open));
+        button.setAttribute(
+          'aria-label',
+          open ? 'Odpri navigacijo' : 'Zapri navigacijo',
+        );
+        nav.hidden = open;
+      });
+      nav
+        ?.querySelectorAll('a')
+        .forEach((link) => link.addEventListener('click', closeMenu));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMenu();
+          button?.focus();
+        }
+      });
+      const observer = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          }),
+        { threshold: 0.08 },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => {
+        el.classList.add('will-reveal');
+        observer.observe(el);
+      });
+      document.querySelectorAll('.service-pick').forEach((link) =>
+        link.addEventListener('click', () => {
+          const select =
+            document.querySelector<HTMLSelectElement>('#inquiry-service');
+          if (select && link instanceof HTMLElement) {
+            select.value = link.dataset.service || '';
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }),
+      );
+    </script>
+  </body>
+</html>

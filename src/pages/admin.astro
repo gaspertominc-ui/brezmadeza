@@ -1,0 +1,22 @@
+---
+import Admin from '../components/Admin';
+import { settings } from '../lib/server';
+import '../styles/global.css';
+import '@fontsource-variable/manrope';
+import '@fontsource-variable/dm-sans';
+const env = settings();
+---
+
+<!doctype html>
+<html lang="sl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <title>Urejevalnik | Brezmadeža</title>
+    <link rel="icon" href="/favicon.svg" />
+  </head>
+  <body>
+    <Admin client:only="react" siteKey={env.TURNSTILE_SITE_KEY} />
+  </body>
+</html>

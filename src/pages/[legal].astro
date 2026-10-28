@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getContent } from '../lib/server';
+const { content: c } = await getContent();
+if (!['zasebnost', 'pogoji'].includes(Astro.params.legal || ''))
+  return Astro.rewrite('/404');
+const privacy = Astro.params.legal === 'zasebnost';
+const title = privacy ? c.legal.privacyTitle : c.legal.termsTitle;
+const text = privacy ? c.legal.privacy : c.legal.terms;
+---
+
+<Layout
+  content={c}
+  title={`${title} | Brezmadeža`}
+  description={`${title} spletne strani Brezmadeža.`}
+  noindex={true}
+>
+  <main id="vsebina" class="container legal-page">
+    <nav class="breadcrumbs" aria-label="Drobtinice">
+      <a href="/">{c.ui.home}</a>
+      <span>/</span>
+      <span>{title}</span>
+    </nav>
+    <h1>{title}</h1>
+    <div class="legal-copy">{text}</div>
+    <div class="legal-company">
+      {c.brand.company && <p>{c.brand.company}</p>}
+      {c.brand.address && <p>{c.brand.address}</p>}
+      {c.brand.registration && <p>{c.brand.registration}</p>}
+      <a href={`mailto:${c.brand.email}`}>{c.brand.email}</a>
+    </div>
+  </main>
+</Layout>

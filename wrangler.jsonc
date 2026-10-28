@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "brezmadeza-si",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-10-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": "./dist/client", "binding": "ASSETS" },
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "vars": {
+    "SITE_URL": "https://brezmadeza.si",
+    "TURNSTILE_SITE_KEY": "",
+    "TURNSTILE_HOSTNAMES": "brezmadeza.si,www.brezmadeza.si",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "brezmadeza-content",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations",
+    },
+  ],
+}

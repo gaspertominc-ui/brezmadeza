@@ -1,0 +1,337 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import InquiryForm from '../components/InquiryForm';
+import { getContent, settings, isLocal } from '../lib/server';
+const { content: c } = await getContent();
+const env = settings();
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://brezmadeza.si/#organization',
+      name: c.brand.name,
+      url: 'https://brezmadeza.si',
+      ...(c.brand.email ? { email: c.brand.email } : {}),
+      ...(c.brand.phone ? { telephone: c.brand.phone } : {}),
+    },
+    {
+      '@type': 'WebSite',
+      name: c.brand.name,
+      url: 'https://brezmadeza.si',
+      inLanguage: 'sl-SI',
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: c.faq.items.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: { '@type': 'Answer', text: item.answer },
+      })),
+    },
+  ],
+};
+---
+
+<Layout content={c} schema={schema}>
+  <main id="vsebina">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="eyebrow">
+            <span class="tiny-spark">✳</span>
+            {c.hero.eyebrow}
+          </div>
+          <h1>
+            {c.hero.title}
+            <span>{c.hero.accent}</span>
+          </h1>
+          <p class="hero-description">{c.hero.description}</p>
+          <div class="hero-actions">
+            <a class="button" href="#kontakt">
+              {c.hero.cta}
+              <Icon name="arrow" />
+            </a>
+            <a class="text-link" href="#storitve">
+              {c.hero.secondary}
+              <Icon name="right" size={18} />
+            </a>
+          </div>
+          <p class="hero-note">
+            <span class="note-dot"></span>
+            {c.hero.note}
+          </p>
+          <div class="hero-bottom">
+            <span class="small-line"></span>
+            <span>{c.brand.tagline}</span>
+            <Icon name="spark" size={20} />
+          </div>
+        </div>
+        <div class="hero-visual">
+          <img
+            src={c.hero.image}
+            alt={c.hero.imageAlt}
+            width="960"
+            height="1100"
+            fetchpriority="high"
+            class="hero-image"
+          />
+          <div class="image-top-label">
+            <span></span>
+            {c.hero.imageLabel}
+          </div>
+          <div class="floating-card">
+            <span class="floating-icon">
+              <Icon name="spark" size={26} />
+            </span>
+            <div>
+              <strong>{c.hero.floatingTitle}</strong>
+              <span>{c.hero.floatingText}</span>
+            </div>
+          </div>
+          <span class="hero-image-number">{c.hero.imageCaption}</span>
+        </div>
+      </div>
+    </section>
+    <div class="trust-strip">
+      <div class="container trust-grid">
+        {c.trust.map((item, i) => (
+          <div class="trust-item">
+            <Icon name={['home', 'leaf', 'shield', 'clock'][i % 4]} size={26} />
+            <div>
+              <strong>{item.title}</strong>
+              <span>{item.description}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <section id="storitve" class="section services-section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <div>
+            <p class="eyebrow">{c.services.eyebrow}</p>
+            <h2>{c.services.title}</h2>
+          </div>
+          <p>{c.services.description}</p>
+        </div>
+        <div class="services-grid">
+          {c.services.items.map((item, index) => (
+            <article class="service-card reveal">
+              <a class="service-image" href={`/storitve/${item.slug}`}>
+                <img
+                  src={item.image}
+                  alt={item.imageAlt}
+                  width="600"
+                  height="700"
+                  loading="lazy"
+                />
+                <span class="service-number">0{index + 1}</span>
+                <span class="service-image-arrow">
+                  <Icon name="arrow" />
+                </span>
+              </a>
+              <div class="service-text">
+                <span class="mini-label">{item.label}</span>
+                <h3>
+                  <a href={`/storitve/${item.slug}`}>{item.title}</a>
+                </h3>
+                <p>{item.description}</p>
+                <a class="service-link" href={`/storitve/${item.slug}`}>
+                  {c.services.link}
+                  <Icon name="arrow" size={16} />
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+    <section class="about-section section">
+      <div class="container about-grid">
+        <div class="about-image reveal">
+          <img
+            src={c.about.image}
+            alt={c.about.imageAlt}
+            width="850"
+            height="1000"
+            loading="lazy"
+          />
+          <span class="about-image-stamp">
+            <Icon name="spark" size={32} />
+            {c.brand.tagline}
+          </span>
+        </div>
+        <div class="about-content reveal">
+          <p class="eyebrow">{c.about.eyebrow}</p>
+          <h2>{c.about.title}</h2>
+          <p class="section-description">{c.about.description}</p>
+          <div class="about-points">
+            {c.about.points.map((point) => (
+              <div>
+                <span class="check-icon">
+                  <Icon name="check" size={18} />
+                </span>
+                <div>
+                  <h3>{point.title}</h3>
+                  <p>{point.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <a class="text-link" href="#kontakt">
+            {c.nav.cta}
+            <Icon name="arrow" size={18} />
+          </a>
+        </div>
+      </div>
+    </section>
+    <section id="postopek" class="section process-section">
+      <div class="container">
+        <div class="center-heading reveal">
+          <p class="eyebrow">{c.process.eyebrow}</p>
+          <h2>{c.process.title}</h2>
+          <p>{c.process.description}</p>
+        </div>
+        <div class="process-grid">
+          {c.process.items.map((item, index) => (
+            <div class="process-item reveal">
+              <div class="step-line">
+                <span>0{index + 1}</span>
+                <span class="step-dot"></span>
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <section id="cenik" class="section pricing-section">
+      <div class="container pricing-grid">
+        <div class="reveal">
+          <p class="eyebrow">{c.pricing.eyebrow}</p>
+          <h2>{c.pricing.title}</h2>
+          <p class="section-description">{c.pricing.description}</p>
+          <a href="#kontakt" class="button">
+            {c.pricing.cta}
+            <Icon name="arrow" />
+          </a>
+        </div>
+        <div class="price-list reveal">
+          {c.pricing.items.map((item) => (
+            <div class="price-row">
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+              <span>{item.price}</span>
+            </div>
+          ))}
+          <p class="price-note">
+            <Icon name="shield" size={18} />
+            {c.pricing.note}
+          </p>
+        </div>
+      </div>
+    </section>
+    <section id="vprasanja" class="section faq-section">
+      <div class="container faq-grid">
+        <div class="reveal">
+          <p class="eyebrow">{c.faq.eyebrow}</p>
+          <h2>{c.faq.title}</h2>
+          <p class="section-description">{c.faq.description}</p>
+          <span class="faq-spark">
+            <Icon name="spark" size={72} />
+          </span>
+        </div>
+        <div class="faq-list reveal">
+          {c.faq.items.map((item, index) => (
+            <details name="faq" open={index === 0}>
+              <summary>
+                {item.question}
+                <span>
+                  <Icon name="plus" size={18} />
+                </span>
+              </summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+    {c.extra.map((section) => (
+      <section class="section custom-section">
+        <div class="container reveal">
+          <p class="eyebrow">{c.brand.name}</p>
+          <h2>{section.title}</h2>
+          <p>{section.text}</p>
+        </div>
+      </section>
+    ))}
+    <section id="kontakt" class="section contact-section">
+      <div class="container contact-grid">
+        <div class="contact-copy reveal">
+          <p class="eyebrow">{c.contact.eyebrow}</p>
+          <h2>{c.contact.title}</h2>
+          <p class="section-description">{c.contact.description}</p>
+          <div class="contact-details">
+            {c.brand.email && (
+              <div>
+                <Icon name="mail" />
+                <div>
+                  <span>{c.contact.emailLabel}</span>
+                  <a href={`mailto:${c.brand.email}`}>{c.brand.email}</a>
+                </div>
+              </div>
+            )}
+            {c.brand.phone && (
+              <div>
+                <Icon name="phone" />
+                <div>
+                  <span>{c.contact.phoneLabel}</span>
+                  <a href={`tel:${c.brand.phone.replace(/\s/g, '')}`}>
+                    {c.brand.phone}
+                  </a>
+                </div>
+              </div>
+            )}
+            <div>
+              <Icon name="pin" />
+              <div>
+                <span>{c.contact.areaLabel}</span>
+                <p>{c.brand.area}</p>
+              </div>
+            </div>
+            <div>
+              <Icon name="clock" />
+              <div>
+                <span>{c.contact.hoursLabel}</span>
+                {c.contact.hours.map((item) => (
+                  <p class="hours-row">
+                    <span>{item.day}</span>
+                    <span>{item.time}</span>
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div class="contact-signature">
+            <Icon name="spark" size={28} />
+            <span>{c.brand.tagline}</span>
+          </div>
+        </div>
+        <div class="inquiry-panel reveal">
+          <InquiryForm
+            client:load
+            copy={c.form}
+            services={c.services.items.map((s) => s.title)}
+            siteKey={env.TURNSTILE_SITE_KEY}
+            local={isLocal(Astro.request)}
+          />
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
