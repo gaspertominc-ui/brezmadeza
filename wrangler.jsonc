@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "brezmadeza-si",
+  "name": "brezmadeza",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-10-26",
   "compatibility_flags": ["nodejs_compat"],
