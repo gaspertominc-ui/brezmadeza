@@ -6,17 +6,24 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "directory": "./dist/client", "binding": "ASSETS" },
   "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "keep_vars": true,
+  "kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "810be8db565b4856b88006e1e4839e16"
+    }
+  ],
   "vars": {
     "SITE_URL": "https://brezmadeza.si",
-    "TURNSTILE_SITE_KEY": "",
-    "TURNSTILE_HOSTNAMES": "brezmadeza.si,www.brezmadeza.si",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFrkwg13f7MJAlh6",
+    "TURNSTILE_HOSTNAMES": "brezmadeza.si,www.brezmadeza.si"
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "brezmadeza-content",
-      "database_id": "00000000-0000-0000-0000-000000000000",
-      "migrations_dir": "migrations",
-    },
-  ],
+      "database_id": "30e55f7c-6cbb-4f3e-ab78-3d428badc69c",
+      "migrations_dir": "migrations"
+    }
+  ]
 }
