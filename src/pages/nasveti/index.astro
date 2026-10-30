@@ -1,0 +1,273 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import { getContent } from '../../lib/server';
+import {
+  publishedArticles,
+  readingMinutes,
+  formatArticleDate,
+} from '../../lib/articles';
+import '../../styles/articles.css';
+
+const { content: c } = await getContent();
+const articles = publishedArticles(c.articles.items);
+const categories = [
+  ...new Set(articles.map((article) => article.category).filter(Boolean)),
+];
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: c.articles.title,
+  description: c.articles.description,
+  url: 'https://brezmadeza.si/nasveti',
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: articles.map((article, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `https://brezmadeza.si/nasveti/${article.slug}`,
+      name: article.title,
+    })),
+  },
+};
+---
+
+<Layout
+  content={c}
+  title={`${c.articles.title} | ${c.brand.name}`}
+  description={c.articles.description}
+  schema={schema}
+>
+  <main id="vsebina" class="advice-page">
+    <section class="advice-intro container">
+      <nav class="breadcrumbs" aria-label="Drobtinice">
+        <a href="/">{c.ui.home}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Nasveti</span>
+      </nav>
+      <div class="advice-heading">
+        <div>
+          <p class="eyebrow">
+            <Icon name="leaf" size={17} /> Za lepši in čistejši dom
+          </p>
+          <h1>{c.articles.title}</h1>
+          <p class="advice-description">{c.articles.description}</p>
+        </div>
+        <div class="advice-intro-note">
+          <Icon name="spark" size={29} />
+          <span>
+            Majhne navade.
+            <br />
+            <strong>Velika razlika.</strong>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="container advice-library" aria-label="Prispevki in nasveti">
+      {articles.length > 0 ? (
+        <>
+          <div class="advice-filters" hidden data-advice-controls>
+            <div
+              class="advice-categories"
+              role="group"
+              aria-label="Kategorija prispevkov"
+            >
+              <button
+                type="button"
+                class="active"
+                data-category=""
+                aria-pressed="true"
+              >
+                Vsi prispevki
+              </button>
+              {categories.map((category) => (
+                <button
+                  type="button"
+                  data-category={category}
+                  aria-pressed="false"
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+            <label class="advice-search">
+              <span class="advice-search-label">Poiščite nasvet</span>
+              <input
+                type="search"
+                placeholder="Poiščite nasvet …"
+                aria-label="Poiščite nasvet"
+                data-advice-search
+              />
+            </label>
+          </div>
+          <p
+            class="advice-result-count"
+            aria-live="polite"
+            data-advice-count
+            hidden
+          ></p>
+          <div class="advice-grid">
+            {articles.map((article) => (
+              <article
+                class="advice-card"
+                data-advice-card
+                data-category={article.category}
+                data-search={`${article.title} ${article.excerpt} ${article.category}`}
+              >
+                <a
+                  class="advice-card-image"
+                  href={`/nasveti/${article.slug}`}
+                  tabindex="-1"
+                  aria-hidden="true"
+                >
+                  {article.image ? (
+                    <img
+                      src={article.image}
+                      alt=""
+                      width="720"
+                      height="480"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="advice-card-placeholder">
+                      <Icon name="leaf" size={55} />
+                      <span>Brezmadeža · Nasveti za dom</span>
+                    </div>
+                  )}
+                  {article.category && (
+                    <span class="advice-category">{article.category}</span>
+                  )}
+                </a>
+                <div class="advice-card-copy">
+                  <div class="advice-meta">
+                    {article.publishedAt && (
+                      <time datetime={article.publishedAt}>
+                        {formatArticleDate(article.publishedAt)}
+                      </time>
+                    )}
+                    <span>
+                      <Icon name="clock" size={13} />
+                      {readingMinutes(article.body)} min branja
+                    </span>
+                  </div>
+                  <h2>
+                    <a href={`/nasveti/${article.slug}`}>{article.title}</a>
+                  </h2>
+                  <p>{article.excerpt}</p>
+                  <a
+                    class="text-link"
+                    href={`/nasveti/${article.slug}`}
+                    aria-label={`Preberite prispevek: ${article.title}`}
+                  >
+                    Preberite prispevek <Icon name="arrow" size={17} />
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div class="advice-empty advice-no-results" hidden data-advice-empty>
+            <Icon name="leaf" size={32} />
+            <h2>Ni najdenih prispevkov.</h2>
+            <p>Poskusite z drugo besedo ali izberite drugo kategorijo.</p>
+            <button type="button" class="text-link" data-advice-reset>
+              Prikaži vse prispevke <Icon name="right" size={17} />
+            </button>
+          </div>
+        </>
+      ) : (
+        <div class="advice-empty">
+          <span class="advice-empty-icon">
+            <Icon name="leaf" size={34} />
+          </span>
+          <p class="eyebrow">Dobre ideje potrebujejo svoj prostor</p>
+          <h2>Novi nasveti prihajajo kmalu.</h2>
+          <p>
+            Tukaj boste našli uporabne prispevke o čiščenju, negi in svežini
+            vašega doma. Medtem smo vam z veseljem na voljo za osebni nasvet.
+          </p>
+          <a class="button" href="/#kontakt">
+            Pišite nam <Icon name="arrow" size={17} />
+          </a>
+        </div>
+      )}
+    </section>
+    <section class="container advice-cta">
+      <div>
+        <p class="eyebrow">Ko vaš dom potrebuje več</p>
+        <h2>
+          Za temeljito svežino
+          <br />
+          poskrbimo mi.
+        </h2>
+        <p>
+          Odkrijte naše storitve globinskega čiščenja ali nam pošljite
+          povpraševanje.
+        </p>
+      </div>
+      <a href="/#kontakt" class="button">
+        {c.nav.cta} <Icon name="arrow" size={18} />
+      </a>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  const controls = document.querySelector<HTMLElement>(
+    '[data-advice-controls]',
+  );
+  const search = document.querySelector<HTMLInputElement>(
+    '[data-advice-search]',
+  );
+  const cards = [
+    ...document.querySelectorAll<HTMLElement>('[data-advice-card]'),
+  ];
+  const buttons = [
+    ...document.querySelectorAll<HTMLButtonElement>('[data-category]'),
+  ].filter((el) => el.tagName === 'BUTTON');
+  const count = document.querySelector<HTMLElement>('[data-advice-count]');
+  const empty = document.querySelector<HTMLElement>('[data-advice-empty]');
+  let category = '';
+  const normalize = (value: string) =>
+    value
+      .toLocaleLowerCase('sl')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  function filter() {
+    const query = normalize(search?.value.trim() || '');
+    let visible = 0;
+    cards.forEach((card) => {
+      card.hidden = !!(
+        (category && card.dataset.category !== category) ||
+        !normalize(card.dataset.search || '').includes(query)
+      );
+      if (!card.hidden) visible++;
+    });
+    buttons.forEach((button) => {
+      const active = button.dataset.category === category;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    if (count) {
+      count.hidden = false;
+      count.textContent = `Prikazano: ${visible} od ${cards.length}`;
+    }
+    if (empty) empty.hidden = visible > 0;
+  }
+  if (controls) controls.hidden = false;
+  buttons.forEach((button) =>
+    button.addEventListener('click', () => {
+      category = button.dataset.category || '';
+      filter();
+    }),
+  );
+  search?.addEventListener('input', filter);
+  document
+    .querySelector('[data-advice-reset]')
+    ?.addEventListener('click', () => {
+      category = '';
+      if (search) search.value = '';
+      filter();
+      search?.focus();
+    });
+</script>

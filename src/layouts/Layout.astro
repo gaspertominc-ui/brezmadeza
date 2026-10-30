@@ -10,6 +10,8 @@ interface Props {
   description?: string;
   noindex?: boolean;
   schema?: Record<string, unknown>;
+  socialImage?: string;
+  ogType?: 'website' | 'article';
 }
 const {
   content: c,
@@ -17,6 +19,8 @@ const {
   description = c.seo.description,
   noindex = false,
   schema,
+  socialImage = c.seo.socialImage,
+  ogType = 'website',
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -35,16 +39,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="sl_SI" />
     <meta property="og:site_name" content={c.brand.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta
-      property="og:image"
-      content={new URL(c.seo.socialImage, Astro.site)}
-    />
+    <meta property="og:image" content={new URL(socialImage, Astro.site)} />
     <meta name="twitter:card" content="summary_large_image" />
     {schema && (
       <script
@@ -74,6 +75,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           <a href="/#postopek">{c.nav.process}</a>
           <a href="/#cenik">{c.nav.pricing}</a>
           <a href="/#vprasanja">{c.nav.faq}</a>
+          <a
+            href="/nasveti"
+            aria-current={
+              Astro.url.pathname.startsWith('/nasveti') ? 'page' : undefined
+            }
+          >
+            Nasveti
+          </a>
         </nav>
         <a href="/#kontakt" class="button button-small header-cta">
           {c.nav.cta}
@@ -98,6 +107,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <a href="/#postopek">{c.nav.process}</a>
         <a href="/#cenik">{c.nav.pricing}</a>
         <a href="/#vprasanja">{c.nav.faq}</a>
+        <a
+          href="/nasveti"
+          aria-current={
+            Astro.url.pathname.startsWith('/nasveti') ? 'page' : undefined
+          }
+        >
+          Nasveti
+        </a>
         <a href="/#kontakt">{c.nav.cta}</a>
       </nav>
     </header>
@@ -123,6 +140,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           <a href="/#postopek">{c.nav.process}</a>
           <a href="/#cenik">{c.nav.pricing}</a>
           <a href="/#vprasanja">{c.nav.faq}</a>
+          <a href="/nasveti">Nasveti</a>
         </div>
         <div>
           <h3>{c.footer.contact}</h3>

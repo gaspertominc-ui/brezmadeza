@@ -23,6 +23,7 @@ import {
 import type { SiteContent } from '../lib/content';
 import { contentSchema } from '../lib/content';
 import Turnstile from './Turnstile';
+import ArticleEditor from './ArticleEditor';
 import '../styles/admin.css';
 
 type Value = string | Value[] | { [key: string]: Value };
@@ -55,6 +56,13 @@ const labels: Record<string, string> = {
   seo: 'SEO in deljenje',
   legal: 'Pravne vsebine',
   extra: 'Dodatne vsebinske sekcije',
+  articles: 'Nasveti in prispevki',
+  body: 'Vsebina prispevka',
+  excerpt: 'Kratek opis',
+  category: 'Kategorija',
+  publishedAt: 'Datum objave',
+  updatedAt: 'Zadnja sprememba',
+  status: 'Stanje objave',
   name: 'Ime znamke',
   tagline: 'Slogan',
   email: 'E-poštni naslov',
@@ -129,6 +137,7 @@ Object.assign(labels, {
   security: 'Obvestilo o varstvu podatkov',
 });
 const tabs = [
+  'articles',
   'brand',
   'nav',
   'hero',
@@ -422,7 +431,12 @@ export default function Admin({ siteKey }: { siteKey: string }) {
       });
       setVersion(data.version);
       setOriginal(JSON.stringify(content));
-      setNotice({ text: 'Spremembe so shranjene in vidne na spletni strani.' });
+      setNotice({
+        text:
+          active === 'articles'
+            ? 'Prispevki so shranjeni. Objavljeni prispevki so vidni na strani Nasveti; osnutki ostanejo zasebni.'
+            : 'Spremembe so shranjene in vidne na spletni strani.',
+      });
     } catch (error) {
       setNotice({
         text:
@@ -449,7 +463,7 @@ export default function Admin({ siteKey }: { siteKey: string }) {
     const selected = event.target.files?.[0];
     if (!selected) return;
     try {
-      if (selected.size > 300000) throw new Error('Datoteka je prevelika.');
+      if (selected.size > 1_800_000) throw new Error('Datoteka je prevelika.');
       const data = contentSchema.parse(JSON.parse(await selected.text()));
       setContent(data);
       setNotice({
@@ -619,7 +633,7 @@ export default function Admin({ siteKey }: { siteKey: string }) {
               : `Vse spremembe shranjene · različica ${version}`}
           </span>
           <a
-            href="/"
+            href={active === 'articles' ? '/nasveti' : '/'}
             target="_blank"
             rel="noreferrer"
             className="preview-button"
@@ -637,7 +651,7 @@ export default function Admin({ siteKey }: { siteKey: string }) {
             ) : (
               <Save size={15} />
             )}
-            Shrani spremembe
+            {active === 'articles' ? 'Shrani prispevke' : 'Shrani spremembe'}
           </button>
           <button
             className="topbar-logout"
@@ -664,7 +678,9 @@ export default function Admin({ siteKey }: { siteKey: string }) {
               <p>
                 {active === 'inbox'
                   ? 'Prejeta povpraševanja na enem mestu.'
-                  : 'Uredite vsebino, nato shranite spremembe za objavo na strani.'}
+                  : active === 'articles'
+                    ? 'Pišite, urejajte in delite uporabne ideje za čist dom.'
+                    : 'Uredite vsebino, nato shranite spremembe za objavo na strani.'}
               </p>
             </div>
             {active !== 'inbox' && (
@@ -764,15 +780,25 @@ export default function Admin({ siteKey }: { siteKey: string }) {
           ) : (
             content && (
               <>
-                <div className="editor-card">
-                  <Field
-                    name={active}
-                    value={content[active as keyof SiteContent]}
-                    onChange={(value) =>
-                      setContent({ ...content, [active]: value })
+                {active === 'articles' ? (
+                  <ArticleEditor
+                    value={content.articles}
+                    onChange={(articles) =>
+                      setContent({ ...content, articles })
                     }
+                    busy={busy}
                   />
-                </div>
+                ) : (
+                  <div className="editor-card">
+                    <Field
+                      name={active}
+                      value={content[active as keyof SiteContent]}
+                      onChange={(value) =>
+                        setContent({ ...content, [active]: value })
+                      }
+                    />
+                  </div>
+                )}
                 <div className="editor-tools">
                   <button onClick={exportContent}>
                     <Download size={15} />
@@ -802,12 +828,14 @@ export default function Admin({ siteKey }: { siteKey: string }) {
                     onChange={(event) => void importContent(event)}
                   />
                 </div>
-                <p className="editor-help">
-                  Slike lahko zamenjate z naslovom HTTPS ali lokalno potjo iz
-                  mape public. Dodajajte in premikajte storitve, vprašanja ter
-                  dodatne vsebinske sekcije. Pravni podatki in besedila so
-                  predloga, ki jo dopolnite pred javno objavo.
-                </p>
+                {active !== 'articles' && (
+                  <p className="editor-help">
+                    Slike lahko zamenjate z naslovom HTTPS ali lokalno potjo iz
+                    mape public. Dodajajte in premikajte storitve, vprašanja ter
+                    dodatne vsebinske sekcije. Pravni podatki in besedila so
+                    predloga, ki jo dopolnite pred javno objavo.
+                  </p>
+                )}
               </>
             )
           )}

@@ -8,6 +8,75 @@ const image = z
     (v) => /^\/(?!\/)/.test(v) || /^https:\/\//.test(v),
     'Uporabite lokalno pot ali naslov HTTPS.',
   );
+const articleDate = z
+  .string()
+  .refine(
+    (v) =>
+      v === '' ||
+      (/^\d{4}-\d{2}-\d{2}$/.test(v) &&
+        Number.isFinite(Date.parse(v)) &&
+        new Date(v).toISOString().slice(0, 10) === v),
+    'Vnesite veljaven datum.',
+  );
+export const articleSchema = z
+  .object({
+    id: z.uuid(),
+    title: z.string().max(200),
+    slug: z
+      .string()
+      .max(160)
+      .regex(/^$|^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    excerpt: z.string().max(600),
+    body: z.string().max(80000),
+    category: z.string().max(80),
+    image: z
+      .string()
+      .max(2000)
+      .refine((value) => {
+        if (!value) return true;
+        if (/[\u0000-\u0020\u007f\\]/.test(value)) return false;
+        if (/^\/(?!\/)/.test(value)) return true;
+        try {
+          return new URL(value).protocol === 'https:';
+        } catch {
+          return false;
+        }
+      }, 'Uporabite lokalno pot ali veljaven naslov HTTPS.'),
+    imageAlt: z.string().max(300),
+    status: z.enum(['draft', 'published']),
+    publishedAt: articleDate,
+    updatedAt: z.iso.datetime().or(z.literal('')),
+  })
+  .superRefine((value, ctx) => {
+    if (value.status !== 'published') return;
+    for (const field of [
+      'title',
+      'slug',
+      'excerpt',
+      'body',
+      'publishedAt',
+    ] as const) {
+      if (!value[field].trim())
+        ctx.addIssue({
+          code: 'custom',
+          path: [field],
+          message: 'Pred objavo izpolnite to polje.',
+        });
+    }
+    if (value.image && !value.imageAlt.trim())
+      ctx.addIssue({
+        code: 'custom',
+        path: ['imageAlt'],
+        message: 'Dodajte opis naslovne slike.',
+      });
+  });
+export type Article = z.infer<typeof articleSchema>;
+const articlesDefault = {
+  title: 'Nasveti za svež in prijeten dom.',
+  description:
+    'Uporabni nasveti, ideje in zapisi o čiščenju ter negi vašega doma. Vse na enem mestu.',
+  items: [] as Article[],
+};
 export const contentSchema = z
   .object({
     brand: z.object({
@@ -171,8 +240,29 @@ export const contentSchema = z
       terms: text,
     }),
     extra: z.array(z.object({ title: text, text: text })).max(20),
+    articles: z
+      .object({
+        title: z.string().max(200),
+        description: z.string().max(600),
+        items: z.array(articleSchema).max(100),
+      })
+      .default(articlesDefault),
   })
   .superRefine((value, ctx) => {
+    const articles = value.articles.items;
+    if (new Set(articles.map((a) => a.id)).size !== articles.length)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['articles', 'items'],
+        message: 'Vsak prispevek mora imeti svoj enoličen ID.',
+      });
+    const articleSlugs = articles.map((a) => a.slug).filter(Boolean);
+    if (new Set(articleSlugs).size !== articleSlugs.length)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['articles', 'items'],
+        message: 'Vsak prispevek mora imeti svoj enoličen naslov URL.',
+      });
     const slugs = value.services.items.map((item) => item.slug);
     if (new Set(slugs).size !== slugs.length)
       ctx.addIssue({
@@ -184,6 +274,7 @@ export const contentSchema = z
 export type SiteContent = z.infer<typeof contentSchema>;
 
 export const defaultContent: SiteContent = {
+  articles: articlesDefault,
   brand: {
     name: 'brezmadeža.',
     tagline: 'Čisto dober občutek.',

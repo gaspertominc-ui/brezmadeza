@@ -138,7 +138,7 @@ export const ALL: APIRoute = async ({ request, params }) => {
       if (route === 'admin/content' && request.method === 'PUT') {
         const payload = z
           .object({ content: contentSchema, version: z.number().int().min(0) })
-          .parse(await readBody(request));
+          .parse(await readBody(request, 1_800_000));
         const result = await env.DB.prepare(
           'INSERT INTO content (id, data, version) VALUES (?, ?, 1) ON CONFLICT(id) DO UPDATE SET data = excluded.data, version = content.version + 1, updated_at = CURRENT_TIMESTAMP WHERE content.version = ? RETURNING version',
         )

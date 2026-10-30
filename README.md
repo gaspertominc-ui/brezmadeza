@@ -35,6 +35,16 @@ Brez integracijskih ključev lokalni obrazec preveri polja, shrani povpraševanj
 - Geslo iz Cloudflare secret, naključne seje, v bazi samo zgoščene sejne vrednosti, HttpOnly/SameSite in pri HTTPS Secure piškotek. Seja velja 8 ur in se ob odjavi prekliče.
 - Preverjanje izvora za mutacije, omejitev velikosti zahtev, validacija Zod, omejitev poskusov prijave in povpraševanj, strežniški Turnstile Siteverify z akcijo in gostiteljem.
 
+## Nasveti in članki
+
+Javna knjižnica je na `/nasveti`, posamezni prispevki na `/nasveti/naslov-prispevka`. Povezava je v glavni in mobilni navigaciji ter nogi strani. Objavljeni prispevki so strežniško izrisani, vključeni v sitemap in imajo svoje SEO podatke. Seznam omogoča iskanje in filtriranje po kategorijah.
+
+V `/admin` odprite **Nasveti in članki** in izberite **Nov prispevek**. Dodajte naslov, kratek opis in vsebino; kategorija ter naslovna slika sta neobvezni. Besedilo lahko prilepite ali oblikujete z gumbi za krepko, ležeče, mednaslove, sezname, povezave, slike in navedke. Zavihek **Predogled** sproti prikaže oblikovano vsebino. HTML se varno izpiše kot besedilo.
+
+**Shrani prispevke** shrani vse spremembe v D1. Nov prispevek je zasebni osnutek; ko je pripravljen, izberite **Pripravi za objavo** in nato **Shrani prispevke**. **Prestavi v osnutke** in shranjevanje prispevek umakneta iz javnosti. Datum je prikazana oznaka, ne razpored objave. Ob spremembi naslova URL se spremeni tudi povezava do prispevka. Za odstranitev uporabite **Odstrani prispevek**, potrdite in shranite spremembe.
+
+Prispevki so del obstoječega izvoza/uvoza JSON in uporabljajo enako zaščito seje ter preverjanje konfliktov. Nadgradnja obstoječi vsebini samodejno doda prazno knjižnico, brez podatkovne migracije ali prepisovanja drugih vsebin. Omejitev je 100 prispevkov, 80.000 znakov na prispevek in 1,8 MB za celotno vsebino pri shranjevanju/uvozu.
+
 ## Prenos na drugi Cloudflare račun
 
 1. Prenesite projekt v želeni GitHub repozitorij. Ne prenašajte `.dev.vars`, `.wrangler`, `node_modules` ali `dist`.
