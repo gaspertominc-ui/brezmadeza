@@ -39,7 +39,7 @@ Brez integracijskih ključev lokalni obrazec preveri polja, shrani povpraševanj
 
 Javna knjižnica je na `/nasveti`, posamezni prispevki na `/nasveti/naslov-prispevka`. Povezava je v glavni in mobilni navigaciji ter nogi strani. Objavljeni prispevki so strežniško izrisani, vključeni v sitemap in imajo svoje SEO podatke. Seznam omogoča iskanje in filtriranje po kategorijah.
 
-V `/admin` odprite **Nasveti in članki** in izberite **Nov prispevek**. Dodajte naslov, kratek opis in vsebino; kategorija ter naslovna slika sta neobvezni. Besedilo lahko prilepite ali oblikujete z gumbi za krepko, ležeče, mednaslove, sezname, povezave, slike in navedke. Zavihek **Predogled** sproti prikaže oblikovano vsebino. HTML se varno izpiše kot besedilo.
+V `/admin` odprite **Nasveti in prispevki** in izberite **Nov prispevek**. Dodajte naslov, kratek opis in vsebino; kategorija ter naslovna slika sta neobvezni. Besedilo lahko prilepite ali oblikujete z gumbi za krepko, ležeče, mednaslove, sezname, povezave, slike in navedke. Zavihek **Predogled** sproti prikaže oblikovano vsebino. HTML se varno izpiše kot besedilo.
 
 **Shrani prispevke** shrani vse spremembe v D1. Nov prispevek je zasebni osnutek; ko je pripravljen, izberite **Pripravi za objavo** in nato **Shrani prispevke**. **Prestavi v osnutke** in shranjevanje prispevek umakneta iz javnosti. Datum je prikazana oznaka, ne razpored objave. Ob spremembi naslova URL se spremeni tudi povezava do prispevka. Za odstranitev uporabite **Odstrani prispevek**, potrdite in shranite spremembe.
 
